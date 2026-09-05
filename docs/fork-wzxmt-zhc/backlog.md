@@ -16,7 +16,7 @@
 | 项 | fork 位置 | 决策 | 状态 | 注意点 |
 |---|---|---|---|---|
 | composer 集群 `:has(textarea)` 正向加 `[data-composer-input]` | `7f47f9e`，`layout.css.ts` / `misc.css.ts` | 合并 | 已摘 ✅ e1ea61d | **对账结论：与 PR #47 不冲突**——#47 的 `:not(:has(...))` 用在 `_scroll` 内容规则（排除 composer 内部内容），fork 的正向 `:has(...)` 用在 `_card` 识别规则（找卡片本身），作用对象不同可共存。layout 24 处 + misc 2 处机械替换，另摘 misc 的 `[data-composer-placeholder]` 门控 2 条（0.1.2 空状态折叠）。CDP 11 断言全绿。 |
-| dsh-file-viewer 移动端适配全套 | `2ff7976`：新 `file-viewer-compat.ts`（35 行）+ compat.css 106 行 + misc.css 12 行 + sidebar-swipe takeover 3 行 + phone-chrome 注册 2 行 | 按需 | 待摘 | 质量高（marker 门控、media 内、reduced-motion 保留），与 taskboard/ssh 的 `takeoverActive()` 同构。确认有用户用 dsh-file-viewer 再收；`dsfv-*` 前缀升级后对账。 |
+| dsh-file-viewer 移动端适配全套 | `2ff7976`：新 `file-viewer-compat.ts`（35 行）+ compat.css 106 行 + misc.css 12 行 + sidebar-swipe takeover 3 行 + phone-chrome 注册 2 行 | 按需 | 已摘 ✅ 955b69d | 全部 marker 门控（没装 viewer 零影响）。**本机 profile 未装 viewer，CDP 只能注入形状验证**（13 断言全绿），真机行为待有 viewer 的用户复核。takeover 语义：viewer 打开时左缘横滑让位给内容滚动（CSV/代码）。 |
 
 ## 🥉 参考不摘
 
