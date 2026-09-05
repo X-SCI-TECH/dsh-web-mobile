@@ -103,6 +103,19 @@ export const MISC_CSS = `@media (max-width: 1023px) and (pointer: coarse) {
     font-size: 16px !important;
   }
 
+  /* ---------- dsh-file-viewer inputs: kill iOS Safari auto-zoom ----------
+     Same rule as the ask composer above: the file viewer's search / jump-to-
+     line / pdf-page fields ship at 13-14px, which Safari auto-magnifies on
+     focus inside a panel that does not blur on tap-away. Raise them to 16px
+     on mobile so Safari skips the zoom. Scoped to the frame marker; the
+     viewer itself is scoped by its stable dsfv prefix.
+     (Port of community fork fix 2ff7976.) */
+  [data-mobile-nav="frame"] [class*="dsfv-search-input"],
+  [data-mobile-nav="frame"] [class*="dsfv-jump-input"],
+  [data-mobile-nav="frame"] [class*="dsfv-page-input"] {
+    font-size: 16px !important;
+  }
+
   /* ---------- iOS WebKit: hold every text field at >=16px so Safari never
       focus-zooms the viewport (#45) ----------
       Report (iPhone 15 Pro Max): the page magnifies as soon as a field takes

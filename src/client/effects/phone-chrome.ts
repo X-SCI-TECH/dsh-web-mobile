@@ -8,6 +8,7 @@ import { createPreviewFullscreenTask } from './preview-fullscreen.ts'
 import { createGitChipTask } from './git-chip-reparent.ts'
 import { createSettingsToolbarTask } from './settings-toolbar-reparent.ts'
 import { createOverlayTask } from './overlay-backdrop-fab.ts'
+import { createFileViewerMarkerTask } from './file-viewer-compat.ts'
 
 // The custom client bundler cannot resolve `../` requires from src/client/effects,
 // so this mirrors the namespace id from src/client/locales.ts. Keep in sync.
@@ -490,6 +491,7 @@ export function registerReconcileTasks(ctx: ClientContext): () => void {
     addReconcilerTask(createSheetRiseTask()),
     addReconcilerTask(createStatsLineTask()),
     addReconcilerTask(createOverlayTask(t, () => ctx.layout.toggleSidebar())),
+    addReconcilerTask(createFileViewerMarkerTask()),
   ]
   return () => {
     for (const remove of removeTasks) remove()
