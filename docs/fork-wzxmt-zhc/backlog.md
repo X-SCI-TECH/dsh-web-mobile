@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | compress.ts 大小写修复（`headerValue`） | round 3 merge（`20d2ce2` 带入），`src/compress.ts` | 摘 | 已摘 ✅ d25d7d3 | 上游 `10f55da` 移植时漏带；对原始 `writeHead` 参数大小写不敏感查找（content-type / content-encoding / vary / content-length）。tests/compress.test.ts 3 用例覆盖。 |
 | 消息操作 tooltip 残留修复 | `7e58824`，`src/client/styles/layout.css.ts` | 摘 | 已摘 ✅ 190fbbf | 门控 `(hover: none), (pointer: coarse)`。**摘抄时放宽了作用域**：fork 的 `[data-phase] [class*="_actions"] :is(...)` 在我们宿主（0.1.1-rc.2）不命中真实 bubble（实测 bubble 挂在 `gdEzaW_userRow` 内而非 actions 行），已去掉 actions 祖先限定；CDP 实测 8/8（含真实宿主 10 个 tooltip 元素全压制、桌面不生效）。 |
-| 三处裸 textarea 锚点改 `textarea, [data-composer-input]` | `c246feb`：`git-chip-reparent.ts` / `stats-line.ts` / `debug.ts` | 摘 | 待摘 | 上游这三处是漏网的；宿主升 0.1.2（Lexical contentEditable）后裸 textarea 全部失效。机械替换，向后兼容。 |
+| 三处裸 textarea 锚点改 `textarea, [data-composer-input]` | `c246feb`：`git-chip-reparent.ts` / `stats-line.ts` / `debug.ts` | 摘 | 已摘 ✅ 3fc6c17 | 上游这三处是漏网的；宿主升 0.1.2（Lexical contentEditable）后裸 textarea 全部失效。机械替换，向后兼容（textarea 分支保留）。CDP 冒烟：0.1.1 上 stats 标记 + badge composer 字段均正常。 |
 
 ## 🥈 对账合并摘（不能整块抄）
 

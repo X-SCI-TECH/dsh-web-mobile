@@ -4,6 +4,7 @@
 
 ## 2026-09-05
 
+- **🥇-3 已摘：三处 textarea 锚点**（提交 3fc6c17）：git-chip-reparent（`querySelector('[data-composer-input], textarea')`）、stats-line（`querySelector('textarea, [data-composer-input]')`，注释同步）、debug badge（`q('textarea, [data-composer-input]')`）。CDP 冒烟（`.local-tests/anchors-smoke.mjs`）：0.1.1-rc.2 宿主上 stats 标记存在、badge composer 字段 true——textarea 分支在新选择器下仍活。
 - **🥇-2 已摘：tooltip 残留修复**（提交 190fbbf）：`@media (hover:none),(pointer:coarse)` 内压制 `[data-phase] :is([class*="_bubble"],[role="tooltip"])`。**摘抄时放宽 fork 的作用域**——CDP 实测 fork 原选择器（`_actions` 祖先限定）在我们宿主 0.1.1-rc.2 不命中真实 bubble（挂 `gdEzaW_userRow` 内），放宽后 10 个真实宿主 tooltip 全压制、桌面 1440 不受影响（探针 `.local-tests/tooltip-probe.mjs` 8/8）。
 - **发现宿主 session 恢复的探针坑**：0.1.1-rc.2 的 persist store（dsh-client-runtime `createSnapshotStore` persist=localStorage key `dsh.sessions.current`）在 boot 早期把内存空快照写回 localStorage，**会覆盖 addScriptToEvaluateOnNewDocument 的预注入**——正确做法是 boot 完成后再写 localStorage 并 reload，然后轮询 `data-phase="active"`（等异步恢复，1500ms sleep 不够，实测需轮询）。恢复成功条件：sessionId 必须属于 dsh web 进程 cwd 的 sessions 目录（本机 3080 的 cwd 是 home，不是 dsh-mobile-nav）。
 - **🥇-1 已摘：compress.ts headerValue 大小写修复**（提交 d25d7d3）：headerValue 纯函数导出 + isDeferrable / varyWithAcceptEncoding / content-length 删除改大小写不敏感；新增 tests/compress.test.ts 3 用例（全量 60/60 绿）；verify + build + diff --check 通过。
