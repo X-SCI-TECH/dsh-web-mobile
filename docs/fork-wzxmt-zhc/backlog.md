@@ -7,7 +7,7 @@
 
 | 项 | fork 位置 | 决策 | 状态 | 注意点 |
 |---|---|---|---|---|
-| compress.ts 大小写修复（`headerValue`） | round 3 merge（`20d2ce2` 带入），`src/compress.ts` | 摘 | 待摘 | 上游 `10f55da` 移植时漏带；对原始 `writeHead` 参数大小写不敏感查找（content-type / content-encoding / vary / content-length）。纯函数，配 node:test 单测。 |
+| compress.ts 大小写修复（`headerValue`） | round 3 merge（`20d2ce2` 带入），`src/compress.ts` | 摘 | 已摘 ✅ d25d7d3 | 上游 `10f55da` 移植时漏带；对原始 `writeHead` 参数大小写不敏感查找（content-type / content-encoding / vary / content-length）。tests/compress.test.ts 3 用例覆盖。 |
 | 消息操作 tooltip 残留修复 | `7e58824`，`src/client/styles/layout.css.ts`（16 行） | 摘 | 待摘 | 门控 `(hover: none), (pointer: coarse)`；审查点：`[class*="_actions"]` 子串需 CDP 验证命中消息操作行、不误伤别的 actions 容器。 |
 | 三处裸 textarea 锚点改 `textarea, [data-composer-input]` | `c246feb`：`git-chip-reparent.ts` / `stats-line.ts` / `debug.ts` | 摘 | 待摘 | 上游这三处是漏网的；宿主升 0.1.2（Lexical contentEditable）后裸 textarea 全部失效。机械替换，向后兼容。 |
 

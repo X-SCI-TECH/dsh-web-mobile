@@ -4,6 +4,7 @@
 
 ## 2026-09-05
 
+- **🥇-1 已摘：compress.ts headerValue 大小写修复**（提交 d25d7d3）：headerValue 纯函数导出 + isDeferrable / varyWithAcceptEncoding / content-length 删除改大小写不敏感；新增 tests/compress.test.ts 3 用例（全量 60/60 绿）；verify + build + diff --check 通过。
 - **建立本框架**：`docs/fork-wzxmt-zhc/`（README 对账快照 + backlog 摘抄清单 + 本日志），确立接手协议：恢复上下文读 README → 挑任务读 backlog → 推进记 log。
 - **完成首次对账**（结论已写入 README/backlog）：
   - fork 仅 `main` 分支，head `2ff7976` v2.5.9；merge-base `ebbd18b`（round 8）；落后上游 15 commits；fork 针对宿主 0.1.2-alpha.1，本仓库基线 rc.1/rc.2。
