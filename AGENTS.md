@@ -154,6 +154,7 @@ dsh web
 
 ## Maintenance
 
+- **fork wzxmt-zhc 对账/摘抄专项文档**：`docs/fork-wzxmt-zhc/` —— README（对账快照 + 接手协议）、`backlog.md`（摘抄清单与决策，三档：直接摘/对账合并/参考不摘）、`log.md`（推进日志，做完一步记一条）。接手该专项先读 README；动手前必须重新 fetch fork（未配置 remote，命令在 README 接手协议里），快照会过时。
 - This file is a living reference. Whenever you discover a new repo-specific command, convention, or pitfall, update it in place.
 - Keep it accurate and concise; remove stale entries as the codebase changes (e.g. removed features, renamed files, new scripts).
 - Verify claims against source before writing them; do not preserve guidance that no longer matches the current tree.
