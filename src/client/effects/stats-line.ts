@@ -3,7 +3,8 @@ import type { ReconcilerTask } from '../core/reconciler-core.ts'
 // The official conversation status row (turns / steps / LLM time / TTFT /
 // cache) has a hashed class, so the stylesheet cannot target it directly.
 // Mark the exact row on narrow screens by text: a [class*=_root] that
-// carries the metrics text and no textarea (the composer card also ends in
+// carries the metrics text and no composer input (textarea or the
+// data-composer-input Lexical node; the composer card also ends in
 // _root and can mention turns in its model line). The CSS then lays the
 // marked row out as ONE horizontally scrolling line with every metric
 // reachable.
@@ -69,7 +70,10 @@ export function createStatsLineTask(): ReconcilerTask {
       if (root.querySelector('button') !== null) continue
       const text = root.textContent ?? ''
       if (!/(turns|steps|\bLLM\b|轮|步)/.test(text)) continue
-      if (root.querySelector('textarea') !== null) continue
+      // Composer card must never be mistaken for the status strip; exclude
+      // its input region across both composer DOMs (textarea / Lexical
+      // contentEditable marked data-composer-input).
+      if (root.querySelector('textarea, [data-composer-input]') !== null) continue
       root.setAttribute('data-mobile-nav', 'stats')
       moveTps(root)
       return
