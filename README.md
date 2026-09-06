@@ -36,22 +36,15 @@
 
 > [DSHA](https://github.com/qiannianhuanxiang/DSHA) 用户无需单独安装：DSHA 已内置本插件，装 APK 即用。
 
-从 npm 一行装：
+从 npm 一行装（仓库自带构建产物，无需构建配置），装完重启 `dsh web`：
 
 ```sh
 dsh plugin --profile web add dsh-web-mobile
 ```
 
-仓库自带构建产物，无 `allowBuilds` 拦截。装完重启 `dsh web`。
+> **旧版迁移**：装过旧名 `dsh-mobile-nav`（更早为 `@dsh-external/dsh-mobile-nav`）的用户请**先移除再装新名**——`dsh plugin --profile web rm <旧键名>`；patch 行 id 随包名一起换了，新旧并存会把同一插件注册两份，不迁移也会留下死依赖或加载失败。
 
-> 包名说明：2026-08-30 起 npm 包名由 `dsh-mobile-nav` 更名为 `dsh-web-mobile`（与 GitHub 仓库名统一，旧 npm 名已整包撤下）；更早的 `@dsh-external/dsh-mobile-nav` 亦不复存在。装过旧版的用户请**先移除再装新名**（patch 行 id 随包名一起换了，新旧并存会把同一插件注册两份）：
->
-> ```sh
-> dsh plugin --profile web rm dsh-mobile-nav      # 2.1.x 及更早的装法键名是 @dsh-external/dsh-mobile-nav，同样先 rm
-> dsh plugin --profile web add dsh-web-mobile     # GitHub 直装：dsh plugin --profile web add github:mexiaosqwq/dsh-web-mobile
-> ```
->
-> 不迁移的后果分路线：npm 装法留下死依赖，profile 里后续任何插件安装/更新都会 404；GitHub 直装拉到新代码后，旧键名与包内新名失配，重启 `dsh web` 时该插件加载失败。两种路线都是 `rm` 旧键名即解。
+GitHub 直装：`dsh plugin --profile web add github:mexiaosqwq/dsh-web-mobile`
 
 本地开发：
 
