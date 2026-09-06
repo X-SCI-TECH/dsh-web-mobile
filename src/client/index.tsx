@@ -6,6 +6,7 @@ import { MOBILE_CSS } from './styles/index.ts'
 import { installFrameController, installOverlayInteractions, installPhoneChrome, installReconciler, registerReconcileTasks, MOBILE_QUERY } from './effects/phone-chrome.ts'
 import { installSidebarSwipe } from './effects/sidebar-swipe.ts'
 import { installSubagentChipTouch } from './effects/subagent-chip-touch.ts'
+import { installComposerKeyboardGuard } from './effects/composer-keyboard-guard.ts'
 import { installAionuiCompat } from './effects/aionui-compat.ts'
 import { createRafScheduler } from './core/raf-scheduler.ts'
 import { installDebugBadge } from './debug.ts'
@@ -182,6 +183,10 @@ export function apply(ctx: ClientContext): void {
   // Lineage-count chip: reliable open/close on touch pointers (upstream is
   // hover-timer driven and has no onClick on the count variant).
   installSubagentChipTouch(ctx)
+
+  // iOS: tapping the composer's send/stop/+ buttons must not re-raise the
+  // dismissed keyboard (upstream keepFocus focuses the editor on mousedown).
+  installComposerKeyboardGuard(ctx)
 
   installPhoneChrome(ctx)
 
