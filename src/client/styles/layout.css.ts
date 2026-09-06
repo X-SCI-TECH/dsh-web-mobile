@@ -459,13 +459,19 @@ export const LAYOUT_CSS = `/* ---------- mobile-only layout (narrow viewport AND
     height: 24px;
     padding: 0;
   }
-  /* Pin the send button to the right edge of the trailing lane.
-     The model pill's margin-left:auto (rule above) is the primary slack
-     absorber that keeps [pill][meter][send] welded at the right edge; this
-     margin-left:auto only remains as the fallback for states where neither
-     the pill nor the meter renders. The :has override zeroes it whenever
-     either control is present, so two autos can never split the void and
-     float the pill mid-lane. */
+  /* Slack-absorber priority in the trailing lane: model pill > meter > send.
+     Exactly one element carries margin-left:auto so the adaptive void always
+     sits BEFORE the welded right cluster, never inside it. The meter itself
+     never had an auto before 2026-09-06: in subagent sessions the model seat
+     is officially absent (the parent pins the model), and zeroing the send's
+     auto on the meter's aria-haspopup="dialog" then left NOTHING to absorb
+     slack -- the whole right cluster hugged the lane's left edge (user
+     screenshot). Fix: when no model pill renders, the meter root becomes the
+     absorber, welding [meter][send] at the right edge like the main view's
+     [pill][meter][send]; the send's auto only survives when neither renders. */
+  [data-phase] [class*="_card"]:has(textarea, [data-composer-input]) [class*="_row"]:has([class*="_trailing"]) > [class*="_trailing"]:not(:has([class*="_trigger"][aria-haspopup="menu"])) > [class*="_root"]:has(> [class*="_trigger"][aria-haspopup="dialog"]) {
+    margin-left: auto;
+  }
   [data-phase] [class*="_card"]:has(textarea, [data-composer-input]) [class*="_row"]:has([class*="_trailing"]) > [class*="_trailing"] > [class*="_primary"] {
     flex: none;
     margin-left: auto;
