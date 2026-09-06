@@ -10,14 +10,41 @@
   - `cordis.patch.yml` inserts the single host plugin row.
   - `src/index.ts` is the host half: `apply()` makes the row visible to the host Loader and installs transparent gzip/brotli compression for large JSON responses (`src/compress.ts`).
   - `package.json` exposes `./client` and declares `dsh.client.platform: "web"`; DSH discovers the browser half from `src/client/index.tsx`.
-- Key layout:
-  - `src/client/` — browser half (components, effects, styles, locales, debug).
-  - `src/client/core/` — DOM-free reconciler engine (`reconciler-core.ts`, zero imports).
-  - `src/client/effects/` — DOM effects grouped by domain.
-  - `src/client/styles/` — CSS as TypeScript string modules.
-  - `lib/` — committed build output (host + inlined client bundle + d.ts). Treat as generated; do not hand-edit.
-  - `scripts/` — custom client bundler and optional CDP smoke probe.
-  - `tests/` — `node:test` unit tests for the reconciler core.
+- Key layout（注释版仓库树；`(不入库)` = gitignore，外部 clone 不可见）:
+
+  ```text
+  dsh-web-mobile/
+  ├─ src/                    ← 真源码，唯一该手改的地方
+  │  ├─ index.ts             ← 宿主半区入口（apply 只装响应压缩）
+  │  ├─ compress.ts          ← 进程级 prototype patch
+  │  └─ client/
+  │     ├─ index.tsx         ← 浏览器半区入口（2 slots）
+  │     ├─ debug.ts          ← ?mobile-nav-debug=1 诊断徽章
+  │     ├─ components/       ← MobileNavToggle / MobileDrawerFooter
+  │     ├─ core/             ← reconciler-core.ts（零 import）+ raf-scheduler.ts
+  │     ├─ effects/          ← 12 个（禁 ../ import）：phone-chrome · sidebar-swipe ·
+  │     │                       gesture-guard · subagent-chip-touch · composer-keyboard-guard ·
+  │     │                       file-viewer-compat · aionui-compat · stats-line ·
+  │     │                       git-chip-reparent · settings-toolbar-reparent ·
+  │     │                       preview-fullscreen · overlay-backdrop-fab
+  │     ├─ styles/           ← index.ts（base→layout→compat→misc 承载顺序）+ 4 个 .css.ts
+  │     └─ i18n/locales.ts
+  ├─ lib/                    ← 生成物：随 pnpm build 刷新，勿手改（client.js≈2 万行内联 bundle）
+  │  └─ types/…              ← d.ts+map；合并同 CSS 模块的 PR 在 .css.d.ts 冲突 → 重建
+  ├─ scripts/
+  │  ├─ build-client.mjs     ← 自研客户端打包器
+  │  ├─ cdp-probe.mjs        ← 主探针 32 断言（EXPECTED_FAILURES 基线）
+  │  ├─ cdp-swipe-probe/failures · cdp-zoom-probe · cdp-compat-contracts (.mjs)
+  │  └─ probes/              ← 7 个历史回归锚点（builtin-only，可单跑）
+  ├─ tests/                  ← 11 个 .test.ts（node --test，type-stripping 直跑）
+  ├─ docs/
+  │  ├─ specs/               ← 6 篇权威设计文档（入库）
+  │  ├─ audits/ · maintenance/pitfalls.md · upstream/（runbook + compat-contracts.json）· fork-wzxmt-zhc/
+  │  └─ debug/ · superpowers/ ← 本地不入库
+  ├─ .github/workflows/ci.yml ← verify → test:core → build → git diff --exit-code lib
+  ├─ assets/                 ← README 用图
+  └─ .local-tests/ · .codegraph/ · .dsh-vision-toolkit/  ← 本地不入库（gitignore 噪音区）
+  ```
 
 ## Commands
 
