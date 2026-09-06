@@ -180,15 +180,21 @@ export const LAYOUT_CSS = `/* ---------- mobile-only layout (narrow viewport AND
   }
 
   /* Message tooltip bubbles (copy / feedback labels, message-row hover
-     bubbles) are redundant on touch: the icon already flips to a checkmark,
-     and a tap leaves a sticky hover/focus with no pointerleave, gluing the
-     bubble to the page as residue. Suppress every tooltip-shaped bubble
-     inside the conversation phase on devices that cannot hover. The
-     ancestor-agnostic scope covers both placements: inline inside the
-     actions row (DSH 0.1.2) and the per-message userRow mount (DSH 0.1.1).
-     (Port of community fork fix 7e58824, scope widened for our host DOM.) */
+     bubbles) are redundant on touch: the icon already flips to a checkmark.
+     Suppress only inside the actions row — the fork's original scope. On
+     this host (0.1.1-rc.2) NO tooltip renders as a visible bubble: the copy
+     label is a visuallyHidden span and no client-ui package emits
+     role="tooltip". The user message bubble (gdEzaW_bubble) and the goal
+     bubble (oRe1gG_bubble) live in _userStack/_row, NOT in _actions — the
+     previously unscoped selector hid every user message on touch devices
+     (2026-09-06 live regression). role="tooltip" stays globally suppressed:
+     genuine ARIA tooltips are exactly what the sticky-residue fix targets,
+     and nothing legitimate carries the role today. The actions-row arm
+     re-activates by itself when a host version renders tooltip labels
+     inline in the actions row (DSH 0.1.2 shape). */
   @media (hover: none), (pointer: coarse) {
-    [data-phase] :is([class*="_bubble"], [role="tooltip"]) {
+    [data-phase] [role="tooltip"],
+    [data-phase] [class*="_actions"] [class*="_bubble"] {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;

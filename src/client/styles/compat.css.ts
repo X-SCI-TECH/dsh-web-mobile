@@ -610,10 +610,10 @@ export const COMPAT_CSS = `@media (max-width: 1023px) and (pointer: coarse) {
      exists below 1024px, and the effect restores the chip to the dock when
      the viewport widens. Chip row geometry (2026-08-16, user feedback):
      48px padding left a 16px dead gap between the chip and the input line
-     and made the composer read too tall; the row is now 40px = chip (24px)
-     at top 12px + ~4px to the textarea — the chip sits slightly lower and
-     the gap is compressed without touching the official height budget
-     further. */
+     and made the composer read too tall; the row was tuned to 40px = chip
+     (24px) at top 12px + ~4px to the textarea. The chip itself has since
+     grown to 28px (git-graph chip CSS), which ate the breathing gap, so the
+     row is 44px to keep the same ~4px clearance (2026-09-06). */
 
   [data-mobile-nav="frame"] [data-gitgraph-chip-anchor] {
     position: absolute !important;
@@ -624,7 +624,13 @@ export const COMPAT_CSS = `@media (max-width: 1023px) and (pointer: coarse) {
     z-index: 1 !important;
   }
   [data-mobile-nav="frame"] [class*="_card"]:has([data-gitgraph-chip-anchor]) {
-    padding-top: 40px !important;
+    padding-top: 44px !important;
+  }
+  /* Kill double-tap zoom on the chip wherever it lives (the tap-target trio
+     in misc.css is scoped to the dock slot and dies once the reparent moves
+     the anchor into the card). Geometry-free: touch-action only. */
+  [data-mobile-nav="frame"] [data-gitgraph-chip-anchor] [data-gitgraph-chip] {
+    touch-action: manipulation !important;
   }
 
   /* ---------- dsh-meme 表情选择卡片：右缘安全距离 ----------

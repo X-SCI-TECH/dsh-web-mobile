@@ -10,8 +10,18 @@ export const MISC_CSS = `@media (max-width: 1023px) and (pointer: coarse) {
      padding and the tool row, and close the gap under the headline. */
 
   [data-phase="hero"] [class*="_card"]:has(textarea, [data-composer-input]) {
-    padding-top: 6px !important;
     gap: 8px !important;
+  }
+  /* Cards carrying the reparented git branch chip must keep compat.css's
+     40px chip clearance: that rule sets padding-top: 40px on any card that
+     contains the absolutely-positioned chip anchor (top 12px + 28px chip).
+     This compact override used to stomp it back to 6px with the same
+     specificity (this sheet loads after compat), so on the hero empty state
+     the chip painted over the input line (2026-09-06). Excluding
+     chip-bearing cards restores the clearance; the textarea collapse below
+     still applies to them. */
+  [data-phase="hero"] [class*="_card"]:has(textarea, [data-composer-input]):not(:has([data-gitgraph-chip-anchor])) {
+    padding-top: 6px !important;
   }
   /* The official composer autosizes the textarea and writes an inline
      height (2 lines on the hero empty state) on the textarea's scroll/grow
