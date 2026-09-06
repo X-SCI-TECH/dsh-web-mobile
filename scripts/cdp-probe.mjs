@@ -53,6 +53,26 @@ function readConfig(env = process.env) {
 
 const results = [];
 
+// Known-failure baseline (machine-readable): these assertions fail on the
+// current local DSH profile for reasons already triaged as unrelated to
+// plugin regressions (bundle A/B evidence in AGENTS.md "主探针预存失败").
+// A FAIL whose name matches an entry — and whose detail contains `includes`
+// when present — is reported as BASE and does not fail the run; any other
+// FAIL is NEW and exits non-zero. Keep entries minimal: a name that stops
+// failing must be removed from this list.
+const EXPECTED_FAILURES = [
+  { name: 'page.errors', includes: '404' },
+  { name: 'integration.gitgraph.reparented' },
+  { name: 'integration.gitgraph.pressed' },
+];
+
+function isExpectedFailure(result) {
+  return EXPECTED_FAILURES.some(
+    (entry) => result.name === entry.name
+      && (entry.includes === undefined || result.detail.includes(entry.includes)),
+  );
+}
+
 class ProbeFailure extends Error {
   constructor(name, detail = '') {
     super(`${name}: ${detail || 'assertion failed'}`);
@@ -92,10 +112,15 @@ function printSummary() {
   const count = (status) => results.filter((result) => result.status === status).length;
   const passCount = count('PASS');
   const skipCount = count('SKIP');
-  const failCount = count('FAIL');
-  const green = failCount === 0 && skipCount === 0;
-  console.log(`SUMMARY pass=${passCount} skip=${skipCount} fail=${failCount} green=${green}`);
-  return failCount;
+  const failures = results.filter((result) => result.status === 'FAIL');
+  const baseFailures = failures.filter(isExpectedFailure);
+  const newFailures = failures.filter((result) => !isExpectedFailure(result));
+  const green = newFailures.length === 0 && skipCount === 0;
+  console.log(`SUMMARY pass=${passCount} skip=${skipCount} fail=${failures.length} base=${baseFailures.length} new=${newFailures.length} green=${green}`);
+  if (baseFailures.length > 0) {
+    console.log(`BASELINE ${baseFailures.map((result) => result.name).join(', ')}`);
+  }
+  return newFailures.length;
 }
 
 function sleep(ms, signal) {
