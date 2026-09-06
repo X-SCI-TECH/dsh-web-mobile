@@ -5,14 +5,14 @@
 // 每个场景记录：drawer marker 是否翻转 + 主内容滚动容器 scrollTop 是否变化
 //              + 页面是否收到 pointercancel（浏览器把手势当滚动/pan 的证据）。
 //
-// 用法：DSH_PROBE_URL=http://127.0.0.1:3457/ node scripts/cdp-swipe-failures.mjs
+// 用法：DSH_PROBE_URL=http://127.0.0.1:3080/ node scripts/cdp-swipe-failures.mjs
 import { spawn } from 'node:child_process'
 import { mkdtemp, rm } from 'node:fs/promises'
 import net from 'node:net'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 
-const URL = process.env.DSH_PROBE_URL || 'http://127.0.0.1:3457/'
+const URL = process.env.DSH_PROBE_URL || 'http://127.0.0.1:3080/'
 const CHROME = process.env.DSH_PROBE_CHROME || 'google-chrome'
 
 const FRAME_SELECTOR = '[data-mobile-nav="frame"]'
