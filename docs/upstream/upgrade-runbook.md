@@ -22,7 +22,12 @@ dsh web                              # 重启 127.0.0.1:3080
 
 ## 2. 哈希族对账（升级后必查）
 
-CSS module 哈希是包版本的函数；下列前缀是本插件选择器/探针的契约锚点，升级后用 CDP 在真实页面逐一确认仍在（换了就改 `src/client/styles/` 与对应探针，并回填 AGENTS.md）：
+CSS module 哈希是包版本的函数；下列前缀是本插件选择器/探针的契约锚点，升级后用 CDP 在真实页面逐一确认仍在（换了就改 `src/client/styles/` 与对应探针，并回填 AGENTS.md）。
+
+本表已有机读版与自动对账探针（首跑 19 HIT / 3 SKIP / 0 MISS）：
+
+- 数据：`docs/upstream/compat-contracts.json`（22 条，`lazy` 标记状态门控/懒加载条目）
+- 执行：`node scripts/cdp-compat-contracts.mjs`（无需 `DSH_PROBE_SESSION_ID`，非 lazy 的 MISS 才 exit 1；SKIP 条目按其 `state` 提示手动复扫）
 
 | 哈希前缀 | 归属 | 涉及契约 |
 | --- | --- | --- |
@@ -57,13 +62,14 @@ pnpm verify && pnpm test:core && pnpm build && git diff --exit-code lib
 # CDP（Termux 本机参数；SESSION_ID 取 ~/.dsh/sessions/--data-data-com.termux-files-home--/ 最新）
 export TMPDIR=$HOME/tmp XDG_RUNTIME_DIR=$HOME/tmp
 export DSH_PROBE_URL=http://127.0.0.1:3080/ DSH_PROBE_CHROME=chromium-browser
+node scripts/cdp-compat-contracts.mjs          # 契约对账（无需 SESSION_ID）；miss=0 才算过，SKIP 按提示手动复扫
 DSH_PROBE_SESSION_ID=<id> pnpm smoke:cdp      # SUMMARY new=0 才算过；BASELINE 见探针内 EXPECTED_FAILURES
 node scripts/cdp-swipe-failures.mjs           # 16 场景手势门
 node scripts/cdp-zoom-probe.mjs               # 21 断言 iOS/viewport 守卫
 for f in scripts/probes/*.mjs; do node "$f" || echo "FAIL $f"; done
 ```
 
-历史回归锚点（`scripts/probes/`）全绿 + 主探针 `new=0` + 手势/zoom 门通过，才算对账完成。
+契约探针 `miss=0`（SKIP 条目手动复扫）+ 历史回归锚点（`scripts/probes/`）全绿 + 主探针 `new=0` + 手势/zoom 门通过，才算对账完成。
 
 ## 5. 低危普查项
 
