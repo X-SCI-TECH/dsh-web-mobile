@@ -31,7 +31,7 @@ export function installDebugBadge(ctx: ClientContext): void {
       }
       const frame = document.querySelector<HTMLElement>('[data-mobile-nav="frame"]')
       return [
-        `build 20260905-2 (wrap fix)`,
+        `build 20260906 (overlay takeover re-scope)`,
         `URL ${location.pathname}${location.search}`,
         `W ${innerWidth} x ${innerHeight} dpr ${devicePixelRatio}`,
         `mq≤1023 ${matchMedia(MOBILE_QUERY).matches}  mq≥1024 ${matchMedia(DESKTOP_QUERY).matches}`,

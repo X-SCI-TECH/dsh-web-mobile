@@ -13,13 +13,14 @@ export const MISC_CSS = `@media (max-width: 1023px) and (pointer: coarse) {
     gap: 8px !important;
   }
   /* Cards carrying the reparented git branch chip must keep compat.css's
-     40px chip clearance: that rule sets padding-top: 40px on any card that
-     contains the absolutely-positioned chip anchor (top 12px + 28px chip).
-     This compact override used to stomp it back to 6px with the same
-     specificity (this sheet loads after compat), so on the hero empty state
-     the chip painted over the input line (2026-09-06). Excluding
-     chip-bearing cards restores the clearance; the textarea collapse below
-     still applies to them. */
+     44px chip clearance: that rule sets padding-top: 44px on any card that
+     contains the absolutely-positioned chip anchor (top 12px + 28px chip —
+     the chip grew 24→28px, so the clearance grew 40→44px to keep the same
+     ~4px breathing gap). This compact override used to stomp it back to 6px
+     with the same specificity (this sheet loads after compat), so on the
+     hero empty state the chip painted over the input line (2026-09-06).
+     Excluding chip-bearing cards restores the clearance; the textarea
+     collapse below still applies to them. */
   [data-phase="hero"] [class*="_card"]:has(textarea, [data-composer-input]):not(:has([data-gitgraph-chip-anchor])) {
     padding-top: 6px !important;
   }
