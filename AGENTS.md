@@ -24,7 +24,7 @@
 ```sh
 pnpm install                       # install (pnpm@11.7.0, lockfile v9)
 pnpm verify                        # type-check host + client halves (tsc --noEmit)
-pnpm test:core                     # node --test tests/*.test.ts (unit tests, 57 tests)
+pnpm test:core                     # node --test tests/*.test.ts (unit tests)
 pnpm build                         # tsc host && tsc client && node scripts/build-client.mjs
 npm run prepack                    # runs npm run build before packaging
 npm pack                           # package smoke check (invokes prepack)
@@ -166,3 +166,11 @@ dsh web
 - This file is a living reference. Whenever you discover a new repo-specific command, convention, or pitfall, update it in place.
 - Keep it accurate and concise; remove stale entries as the codebase changes (e.g. removed features, renamed files, new scripts).
 - Verify claims against source before writing them; do not preserve guidance that no longer matches the current tree.
+
+## 维护入口
+
+- 回归探针：`scripts/probes/`（7 个历史回归锚点，node:builtin-only，可单跑；主探针 `pnpm smoke:cdp` 与手势门 `cdp-swipe-failures.mjs` 见 Commands）。
+- 设计 spec：`docs/specs/`（权威设计文档随仓库走）；`.local-tests/` 探针原稿、`docs/superpowers/` 与 `docs/debug/settings-market-debug-map.md` 仍是本地不入库。
+- CI：`.github/workflows/ci.yml`——verify → test:core → build → `git diff --exit-code lib`（lib 新鲜度门）。
+- 引擎底线：`package.json` engines `node >=24.0.0`（tests 依赖 Node 原生 TS type-stripping）。
+- 宿主升级对账清单：`docs/upstream/upgrade-runbook.md`。
