@@ -21,6 +21,9 @@
     { "id": "group-card-3", "kind": "hash", "needle": "Jh0q7G_", "owner": "dsh-web-ui-all", "lazy": false, "note": "同上" },
     { "id": "group-card-4", "kind": "hash", "needle": "jmhvDG_", "owner": "dsh-web-ui-all", "lazy": false, "note": "同上" },
     { "id": "group-card-5", "kind": "hash", "needle": "rUBhvW_", "owner": "dsh-web-ui-all", "lazy": false, "note": "同上" },
+    { "id": "workspace-session-row", "kind": "hash", "needle": "_sessionRow", "owner": "dsh-client-ui-workspace", "lazy": true, "state": "桌面宽度（≥1024px）工作区面板渲染后复扫；rc.2 抽屉是 rail 变体不渲染行", "note": "会话删除菜单注入的行锚点（session-menu.ts），YDXeBa_sessionRow 子串命中" },
+    { "id": "workspace-menu-item", "kind": "hash", "needle": "_itemLabel", "owner": "dsh-client-ui-workspace", "lazy": true, "state": "桌面点会话行 ⋯ 菜单后复扫", "note": "菜单克隆模板（_itemIcon/_itemLabel 配对）；签名=恰 3 项 rename/fork/archive" },
+    { "id": "workspace-group-section", "kind": "hash", "needle": "_groupSection", "owner": "dsh-client-ui-workspace", "lazy": true, "state": "桌面宽度工作区面板渲染后复扫", "note": "重名标题组内位置消歧（resolveSessionId），qDHVXG_groupSection 子串命中" },
     { "id": "marker-lexical-composer", "kind": "marker", "needle": "[data-composer-input]", "owner": "dsh-client-ui-conversation", "lazy": true, "state": "0.1.2-rc.1+ 才存在；0.1.1-rc.2 缺席属正常", "note": "Lexical composer 编辑面 marker" },
     { "id": "marker-conversation-overlay", "kind": "marker", "needle": "[data-conversation-composer-overlay]", "owner": "dsh-client-ui-trajectory/conversation", "lazy": true, "state": "活跃 conversation.view（含轨迹 tab）", "note": "通用 overlay 属性，非 file-viewer 专属" }
   ]

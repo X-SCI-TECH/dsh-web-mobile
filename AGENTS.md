@@ -8,25 +8,26 @@
 - No monorepo, no application server, no workspace layer.
 - Real entrypoints:
   - `cordis.patch.yml` inserts the single host plugin row.
-  - `src/index.ts` is the host half: `apply()` makes the row visible to the host Loader and installs transparent gzip/brotli compression for large JSON responses (`src/compress.ts`).
+  - `src/index.ts` is the host half: `apply()` makes the row visible to the host Loader, installs transparent gzip/brotli compression for large JSON responses (`src/compress.ts`), and registers the session-delete endpoint `/api/mobile-nav.session.delete` (work in `src/delete-session.ts`).
   - `package.json` exposes `./client` and declares `dsh.client.platform: "web"`; DSH discovers the browser half from `src/client/index.tsx`.
 - Key layout（注释版仓库树；`(不入库)` = gitignore，外部 clone 不可见）:
 
   ```text
   dsh-web-mobile/
   ├─ src/                    ← 真源码，唯一该手改的地方
-  │  ├─ index.ts             ← 宿主半区入口（apply 只装响应压缩）
+  │  ├─ index.ts             ← 宿主半区入口（apply 装响应压缩 + 会话删除端点）
   │  ├─ compress.ts          ← 进程级 prototype patch
+  │  ├─ delete-session.ts    ← 会话删除纯核（DI、分代适配、可单测）
   │  └─ client/
   │     ├─ index.tsx         ← 浏览器半区入口（2 slots）
   │     ├─ debug.ts          ← ?mobile-nav-debug=1 诊断徽章
   │     ├─ components/       ← MobileNavToggle / MobileDrawerFooter
   │     ├─ core/             ← reconciler-core.ts（零 import）+ raf-scheduler.ts
-  │     ├─ effects/          ← 12 个（禁 ../ import）：phone-chrome · sidebar-swipe ·
+  │     ├─ effects/          ← 13 个（禁 ../ import）：phone-chrome · sidebar-swipe ·
   │     │                       gesture-guard · subagent-chip-touch · composer-keyboard-guard ·
   │     │                       file-viewer-compat · aionui-compat · stats-line ·
   │     │                       git-chip-reparent · settings-toolbar-reparent ·
-  │     │                       preview-fullscreen · overlay-backdrop-fab
+  │     │                       preview-fullscreen · overlay-backdrop-fab · session-menu
   │     ├─ styles/           ← index.ts（base→layout→compat→misc 承载顺序）+ 4 个 .css.ts
   │     └─ i18n/locales.ts
   ├─ lib/                    ← 生成物：随 pnpm build 刷新，勿手改（client.js≈2 万行内联 bundle）
@@ -35,8 +36,8 @@
   │  ├─ build-client.mjs     ← 自研客户端打包器
   │  ├─ cdp-probe.mjs        ← 主探针 32 断言（EXPECTED_FAILURES 基线）
   │  ├─ cdp-swipe-probe/failures · cdp-zoom-probe · cdp-compat-contracts (.mjs)
-  │  └─ probes/              ← 7 个历史回归锚点（builtin-only，可单跑）
-  ├─ tests/                  ← 11 个 .test.ts（node --test，type-stripping 直跑）
+  │  └─ probes/              ← 8 个历史回归锚点（builtin-only，可单跑）
+  ├─ tests/                  ← 12 个 .test.ts（node --test，type-stripping 直跑）
   ├─ docs/
   │  ├─ specs/               ← 6 篇权威设计文档（入库）
   │  ├─ audits/ · maintenance/pitfalls.md · upstream/（runbook + compat-contracts.json）· fork-wzxmt-zhc/
@@ -84,8 +85,8 @@ dsh web
 
 ## Architecture
 
-- Host/client split is load-bearing. All browser behavior lives in `src/client/`; the host half only installs the response-compression patch.
-- `src/client/index.tsx` injects `['slots', 'layout', 'locale', 'sessionLogDownload']`. Its `apply()` registers locale dictionaries, injects one `<style data-plugin>` tag, installs effects, and registers exactly two slots:
+- Host/client split is load-bearing. All browser behavior lives in `src/client/`; the host half installs the response-compression patch plus the session-delete endpoint (deletion work in the DI pure core `src/delete-session.ts`, generation-adapted per host).
+- `src/client/index.tsx` injects `['slots', 'layout', 'locale', 'sessionLogDownload', 'sessions', 'workspaces']`. Its `apply()` registers locale dictionaries, injects one `<style data-plugin>` tag, installs effects, and registers exactly two slots:
   - `conversation.session.header.actions` → `MobileNavToggle` (`order: 10`): drawer toggle + Files button.
   - `sidebar.footer.action` → `MobileDrawerFooter` (`order: 5`): Files + session-log actions. Order 5 keeps them below the remote icon row (order default 0) and above usage badges (order 10). Do not tie with usage stats.
   - There is **no settings slot** anymore; the haptic feedback feature was removed.
@@ -102,6 +103,7 @@ dsh web
   - `debug.ts` — opt-in `?mobile-nav-debug=1` live diagnostic badge (no-op without the query param).
   - `subagent-chip-touch.ts` — touch compatibility for the subagent count chip and touch nav-arm close (see Pitfalls).
   - `composer-keyboard-guard.ts` — iOS-only: tapping the composer's send/stop/+ buttons must not re-raise a dismissed keyboard (upstream `keepFocus` focuses the editor on `mousedown`, PR #48; DOM-contract notes in the file header).
+  - `session-menu.ts` — mobile-gated injection of a 「删除会话」 item into the workspace session-row ⋯ menu (clone-and-inject from the fork wzxmt-zhc v2.7.0): guard = mobile query + row/menu/label selectors present; inert on hosts whose drawer renders the rail variant (rc.2), activates on hosts rendering session rows in the drawer (0.1.3); confirmation dialog markup/styles live in base.css.ts with corrected animation names.
   - Reconciler task modules: `git-chip-reparent.ts`, `settings-toolbar-reparent.ts`, `preview-fullscreen.ts`, `overlay-backdrop-fab.ts`.
 - Styles: `src/client/styles/index.ts` concatenates `base → layout → compat → misc` in that load-bearing order and injects one `<style data-plugin>` tag. Mobile rules target `(max-width: 1023px) and (pointer: coarse)` (keep every top-level media block in sync with `MOBILE_QUERY`); the desktop hide block in misc.css.ts is its exact complement and must preserve the uninstalled layout.
 - Third-party compatibility is implemented through scoped DOM markers, stable `data-*` attributes, `MutationObserver`, and carefully scoped class/text anchors. Never modify third-party source packages.
@@ -109,10 +111,10 @@ dsh web
 
 ## Conventions
 
-- Keep the host/client split intact; the host half stays minimal (`apply()` installs only response compression).
+- Keep the host/client split intact; the host half stays minimal (`apply()` installs response compression + the session-delete endpoint, nothing else).
 - Use stable `data-*` markers and structural selectors before hashed classes. For unavoidable hashed classes use substring matching (`[class*=_frag]`), never attribute-suffix (`[class$=…]`) — the class attribute often carries extra tokens or trailing spaces, and a suffix test runs against the whole attribute value, so it silently misses (verified in the full-codebase migration). Scope the selector to its owning region and guard prefix-overlapping fragments with `:not`; for tree rows use `[class*="_treeRow"]` and exclude `[class*="_treeArrowEmpty"]` when distinguishing directories from files.
 - Put every long-lived style tag, listener, timer, or `MutationObserver` inside `ctx.effect(() => { ...; return disposer }, label)`. Re-arm width-sensitive effects on `matchMedia(MOBILE_QUERY)` changes via `installMobileEffect` so wide→narrow transitions work; import the constant from phone-chrome.ts instead of hardcoding query strings.
-- Treat DOM markers as the cross-module state contract: `data-mobile-nav="frame"`, `data-sidebar-collapsed`, `data-aionui-explorer-open`, `data-aionui-preview-open`, `data-mobile-preview-full`, `data-mobile-nav="stats"`, `data-file-viewer-open` (frame-level gate for the dsh-file-viewer compat layout, keyed on `.dsfv-panel`), and `data-mobile-nav-ios` (on `<html>`, iOS-only CSS gate).
+- Treat DOM markers as the cross-module state contract: `data-mobile-nav="frame"`, `data-sidebar-collapsed`, `data-aionui-explorer-open`, `data-aionui-preview-open`, `data-mobile-preview-full`, `data-mobile-nav="stats"`, `data-file-viewer-open` (frame-level gate for the dsh-file-viewer compat layout, keyed on `.dsfv-panel`), `data-mobile-nav="session-delete"` (menu-item probe key), `delete-dialog-backdrop` + `delete-dialog` (confirmation dialog), and `data-mobile-nav-ios` (on `<html>`, iOS-only CSS gate).
 - Use idempotent `ensure()`/reparent logic when injecting nodes into third-party React-owned DOM. Clean up moved nodes, observers, attributes, and listeners on disposal.
 - Obtain DSH services through the declared fiber `inject` list and slot `inject` props; use React state for local mirrors and `data-*` markers for cross-effect state.
 - Client runtime effects are currently synchronous DOM work; follow that pattern unless a new contract requires async behavior. Use the debug badge's captured `error`/`unhandledrejection` output when diagnosing failures instead of swallowing exceptions.
@@ -164,6 +166,7 @@ dsh web
 - **host 半区 ESM 相对导入必须带 `.js` 扩展名**：`tsconfig.json` 用 `moduleResolution: "bundler"`，tsc 把相对说明符原样发射；Node ESM 不猜扩展名 → `ERR_MODULE_NOT_FOUND`，plugin tree 加载失败、`dsh web` 直接崩（实锤 #31：`src/index.ts` 写 `from './compress'` 漏 `.js`）。bundler 模式会把 `./compress.js` 映射回 `compress.ts`，所以源码写 `.js` 即可，不必动 tsconfig。`lib/index.js` 应可从仓库根 `node -e "import('./lib/index.js')"` 直接解析。
 - **safe-area padding 与 `box-sizing: border-box` 必须成对出现**（frame `height:100%`+content-box 会把视口撑出 inset 滚动量、composer seat 沉到视口下——「跟随失效」是假象，错位的是外层 document；桌面 inset=0 复现不出，须 CDP 注入 47px 模拟；断言 scrollHeight-clientHeight===0 且 seat.bottom===innerHeight）→ `docs/maintenance/pitfalls.md` §safe-area。
 - **响应压缩是进程级 prototype patch**：`src/compress.ts` 直接替换 `http.ServerResponse.prototype` 的 writeHead/write/end（disposer 还原），作用于 DSH Web 进程内所有响应而不只是本插件路由；仅压缩 ≥4KB 且 content-type 含 json、无既有 content-encoding、客户端 Accept-Encoding 支持 br/gzip 的响应，SSE 有意不压。改动该文件时必须保持三条不变式：小 JSON 原样字节透传（原头不动）、Content-Length 与实发字节数一致、dispose 完整还原三个方法。
+- **会话删除的注入面按宿主分代（fork wzxmt-zhc 摘抄，2026-09-08）**：rc.2 手机抽屉渲染宿主 rail 变体（`qDHVXG_rail`，`qDHVXG_listArea` 恒空），390/768px 均无会话行与 ⋯ 菜单；`YDXeBa_sessionRow` + 菜单（恰 3 项 rename/fork/archive，`_itemIcon/_itemLabel` 克隆模板齐全）只在 ≥1024px 桌面工作区面板存在。fork 选择器靠子串天然命中（`YDXeBa_sessionRow` ⊇ `_sessionRow`、`qDHVXG_groupSection` ⊇ `_groupSection`），故 session-menu.ts 在 rc.2 的 mobile 门控内静默、宿主升级（0.1.3 抽屉渲染会话行）后自动激活——**别为此做全宽注入或抽屉展开面板**（用户已否决，破坏桌面零影响）。升级绊线：`scripts/probes/session-delete-probe.mjs` 断言 5（rail 在场但 0 行/0 菜单），0.1.3 上翻红 = 按 SKIP 提示到 `docs/fork-wzxmt-zhc/backlog.md` 会话删除行复启注入/弹窗断言套件。桌面零注入由断言 15c/15d 守（mobile 门控 + misc 隐藏块双保险）。删除端点真机已验：冷会话 200 并整目录移除（跨项目 projectKey 复算命中真实布局）、GET 405 / 空参 400 / 未知 404；运行中会话 409 拒删为单测覆盖（真机 409 实测需有 agent 真在跑的会话，留待实机场景）。
 
 - **流式期每帧热点性能契约**：stats-line 快路径 `statsAnchorAlive`（失位先摘旧标记再回落慢路径，scopes 恒 `['*']`）；installed-list 观察者走 `core/raf-scheduler.ts` rAF 合并（flush 重验 mq，dispose cancel）；抽屉会话树 `content-visibility:auto` 为会话数增大后的渐进增强；arm-open 冻结治本在宿主（React 互斥子树同步挂载），插件 CSS 只能消 layout/paint 份额 → `docs/maintenance/pitfalls.md` §性能契约。
 
@@ -174,7 +177,7 @@ dsh web
 ## Testing & QA
 
 - **设置/插件市场调试地图**：`docs/debug/settings-market-debug-map.md` —— 设置区与市场 UI 的 DOM 层级图、入口链路、CSS module 哈希对照表（VOzbGW_/eGUBIq_/hHd-Xa_…）、compat 干预点索引与 CDP 取证 SOP。排查该区域布局/弹层问题先读它，不要重新摸索层级。（此文档仅本地保留，已加入 .gitignore 不随仓库上传。）
-- Automated gates: `pnpm verify` (typecheck) and `pnpm test:core`（11 个测试文件 / 70 断言组，glob 覆盖 `tests/` 全部）. `pnpm build` additionally exercises the custom client bundler. Use `git diff --check` for whitespace hygiene.
+- Automated gates: `pnpm verify` (typecheck) and `pnpm test:core`（12 个测试文件，glob 覆盖 `tests/` 全部）. `pnpm build` additionally exercises the custom client bundler. Use `git diff --check` for whitespace hygiene.
 - There is no linter, formatter, or coverage setup; the CI workflow (`.github/workflows/ci.yml`) additionally runs the lib freshness gate `git diff --exit-code lib`.
 - After source/layout changes, install the linked plugin in a real DSH Web profile, restart `dsh web`, and check both sides of the breakpoint:
   - **Narrow phone (~390px):** rail hidden; drawer/FAB/backdrop open and close; Escape; session-row action menus do not close the drawer; settings remains usable; Files opens explorer/preview sheets; session-log/footer actions work; preview fullscreen opens and resets.
@@ -197,7 +200,7 @@ dsh web
 
 ## 维护入口
 
-- 回归探针：`scripts/probes/`（7 个历史回归锚点，node:builtin-only，可单跑；主探针 `pnpm smoke:cdp` 与手势门 `cdp-swipe-failures.mjs` 见 Commands）。
+- 回归探针：`scripts/probes/`（8 个历史回归锚点，node:builtin-only，可单跑；主探针 `pnpm smoke:cdp` 与手势门 `cdp-swipe-failures.mjs` 见 Commands）。
 - 设计 spec：`docs/specs/`（权威设计文档随仓库走）；`.local-tests/` 探针原稿、`docs/superpowers/` 与 `docs/debug/settings-market-debug-map.md` 仍是本地不入库。
 - CI：`.github/workflows/ci.yml`——verify → test:core → build → `git diff --exit-code lib`（lib 新鲜度门）。
 - 引擎底线：`package.json` engines `node >=24.0.0`（tests 依赖 Node 原生 TS type-stripping）。

@@ -2,6 +2,13 @@
 
 > 按时间倒序（最新在上）。每条：日期 + 做了什么 + 结果/遗留。做完一步就记，别攒到结尾。
 
+## 2026-09-08
+
+- **🥉→🥇 会话删除分层摘抄完成（预备式）**：纯核 `src/delete-session.ts`（4c58bc6，fork 原样 + 3 处分代适配：`entry.header ?? entry` 扁平 list 归一、live 门控降级 409 session-busy、`workspace.detachSession?()` 可选链）+ 10/10 单测（fork 7 条逐字 + rc.2 基线 3 条）；宿主路由（95e5839，`POST /api/mobile-nav.session.delete`，405/400/503/200/404/409）；客户端 `effects/session-menu.ts` fork 逐字（f54690a；fork 原文 `n(ns)` 系本仓库 `rg -r` 误读产物，保留 `bind(NS)`；i18n 10 键）+ base.css 弹窗块（d1113a3；**动画名坑**：fork 的 `dsh-mobile-nav-*` 在本仓库是 no-op，已改 `dsh-web-mobile-fade/sheet-in`）+ misc 桌面隐藏块 +3 类。
+- **rc.2 抽屉=rail 变体 → 决策 A 预备式收尾**：CDP 实测 390/768px 抽屉无会话行可注入（`qDHVXG_rail`，listArea 恒空；`YDXeBa_sessionRow`+⋯ 菜单只在 ≥1024px 桌面面板）→ UI 在 rc.2 静默、0.1.3 抽屉渲染会话行后自动激活；用户否决 B（全宽注入）/C（抽屉展开面板）。探针 `scripts/probes/session-delete-probe.mjs`（a336c1d）：12 PASS + 1 SKIP，断言 5=升级绊线（0.1.3 上翻红→回 backlog 本行复启 6-13）；桌面 15b/15c 修正为 hover-then-click（行操作钮 display:none 需先 mouseMoved），实测菜单恰 3 项（Rename/Fork session/Archive session）且 `_itemIcon/_itemLabel` 克隆模板齐全、零注入标记。
+- **真机破坏性 E2E（一次性脚本，未入库）**：桌面 UI 自建牺牲会话 → 走真路由删除：200 {ok,deleted} + 存储目录整删（跨项目 projectKey 复算命中真实布局 `--data-data-com.termux-files-home-mc-search-skill--/session-*`）；GET 405 / 空参 400 / 未知 404；「刷新后行消失」以行数回归旁证（脚本删了自己正看的会话致 reload 超时=脚本假象，**边缘已记 backlog：删除当前打开的会话时客户端恢复指针需能回落，0.1.3 实机顺带验**）。409 live 拒删仅单测覆盖（实机需 agent 真在跑）。
+- **文档收口**：README changelog（结果式）、AGENTS（树/入口/架构/约定/markers/坑/计数）、compat-contracts.json +3 条（workspace-session-row / workspace-menu-item / workspace-group-section，均 lazy）、backlog 本行改 ✅ 已摘（预备式）。
+
 ## 2026-09-06
 
 - **重新对账完成（fork v2.6.0/v2.7.0），只分析未合并**（用户指示）：

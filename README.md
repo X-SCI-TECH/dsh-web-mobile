@@ -32,32 +32,13 @@
 | --- | --- | --- |
 | ![移动端会话主页](assets/hero.png) | ![目录抽屉](assets/drawer.png) | ![移动端设置界面](assets/settings.png) |
 
-## 安装
-
-> [DSHA](https://github.com/qiannianhuanxiang/DSHA) 用户无需单独安装：DSHA 已内置本插件，装 APK 即用。
-
-从 npm 一行装（仓库自带构建产物，无需构建配置），装完重启 `dsh web`：
-
-```sh
-dsh plugin --profile web add dsh-web-mobile
-```
-
-> **旧版迁移**：装过旧名 `dsh-mobile-nav`（更早为 `@dsh-external/dsh-mobile-nav`）的用户请**先移除再装新名**——`dsh plugin --profile web rm <旧键名>`；patch 行 id 随包名一起换了，新旧并存会把同一插件注册两份，不迁移也会留下死依赖或加载失败。
-
-GitHub 直装：`dsh plugin --profile web add github:mexiaosqwq/dsh-web-mobile`
-
-本地开发：
-
-```sh
-dsh plugin --profile web add link:/path/to/dsh-web-mobile
-```
-
 ## 更新内容
 
 ### 未发布
 
 **新功能**
 
+- 移动端会话删除（移植自 fork wzxmt-zhc v2.7.0）：会话行 ⋯ 菜单新增「删除会话」项，配底部确认弹窗；宿主新增删除端点，冷会话连同存储目录整体删除，运行中的会话拒绝并提示先停止。宿主抽屉以会话行形式渲染会话列表后生效（0.1.1-rc.2 的抽屉是图标栏，属宿主升级预备）
 - dsh-file-viewer 移动端适配（移植自 fork wzxmt-zhc）：查看器面板套用移动端布局，工具栏按钮与文件行达到触达尺寸，搜索框 16px 避免 iOS 聚焦放大，CSV/代码区横向滚动归滚动容器；未安装该插件时零影响
 
 **变更**
@@ -166,6 +147,26 @@ dsh plugin --profile web add link:/path/to/dsh-web-mobile
 - [dsh-genui](https://github.com/omdsh-dev/dsh-genui)——**0.9.1**
 - [dsh-meme](https://github.com/mexiaosqwq/dsh-meme)——**v0.1.39**
 - [dsh-file-viewer](https://github.com/liguobao/dsh-file-viewer)——**v0.3.1**
+
+## 安装
+
+> [DSHA](https://github.com/qiannianhuanxiang/DSHA) 用户无需单独安装：DSHA 已内置本插件，装 APK 即用。
+
+从 npm 一行装（仓库自带构建产物，无需构建配置），装完重启 `dsh web`：
+
+```sh
+dsh plugin --profile web add dsh-web-mobile
+```
+
+> **旧版迁移**：装过旧名 `dsh-mobile-nav`（更早为 `@dsh-external/dsh-mobile-nav`）的用户请**先移除再装新名**——`dsh plugin --profile web rm <旧键名>`；patch 行 id 随包名一起换了，新旧并存会把同一插件注册两份，不迁移也会留下死依赖或加载失败。
+
+GitHub 直装：`dsh plugin --profile web add github:mexiaosqwq/dsh-web-mobile`
+
+本地开发：
+
+```sh
+dsh plugin --profile web add link:/path/to/dsh-web-mobile
+```
 
 ## 构建
 
