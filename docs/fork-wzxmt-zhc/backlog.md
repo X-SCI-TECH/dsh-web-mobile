@@ -22,7 +22,7 @@
 
 | 项 | fork 位置 | 决策 | 状态 | 说明 |
 |---|---|---|---|---|
-| 会话删除（行菜单 + `/api/mobile-nav.session.delete`） | v2.1.0 系列（`3d877b7` 起）+ round 4 修复 | 不摘，参考 | ❌ 跳过 | 宿主侧 `as unknown as` 戳 `agents.store/detachEntered`、`sessions.store/detach` 私有内部（宿主升级即碎）；客户端克隆宿主 hashed class 注入菜单项、按标题文本反查 sessionId（重名按行位置消歧）；针对 0.1.2-alpha.1 服务形状。参考价值：错误码分级、`withTimeout(agent.whenIdle())` 停止顺序、jsonl backend 检查。 |
+| 会话删除（行菜单 + `/api/mobile-nav.session.delete`） | v2.1.0（`3d877b7` 起）→ **v2.7.0 重写**（`src/delete-session.ts` DI 纯核 + 7 单测 + `effects/session-menu.ts`），针对 0.1.3-alpha.1 | 暂不摘；升级为「分层摘抄候选」（等 0.1.3 进 npm 或做 list 形状分代适配） | ❌ 跳过（维持） | **v2.7.0 重评（2026-09-06）**：纯核质量高（DI/测试/错误码分级/路径逃逸防御），JSONL 布局复刻与 rc.2 逐字节一致、`config.root` rc.2 存在；但 rc.2 `list()` 是扁平 `SessionHeader[]`，fork 按 `candidate.header.id` 读必 500，live 注销 `agents.store/detachEntered` rc.2 不存在 → **只在 0.1.3-alpha.1 可用**；客户端 ctx.sessions/workspaces 形状 rc.2 兼容、`_sessionRow/_projectRow` 存在，菜单「恰 3 项」签名 + 按标题反查仍脆弱待实机验证。分层摘抄路径：纯核 → list 形状按宿主分代 → 菜单注入实机验证 → i18n 22 行 + base.css 93 行 + client index 注册一并带。 |
 
 ## 备选（方向性，未排期）
 

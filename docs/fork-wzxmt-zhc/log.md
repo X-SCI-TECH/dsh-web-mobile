@@ -2,6 +2,16 @@
 
 > 按时间倒序（最新在上）。每条：日期 + 做了什么 + 结果/遗留。做完一步就记，别攒到结尾。
 
+## 2026-09-06
+
+- **重新对账完成（fork v2.6.0/v2.7.0），只分析未合并**（用户指示）：
+  - fork v2.6.0：合上游 round 9（PR #41/#43/#44/#45/#46/#47、settings 锚定），**主动删除 compress.ts**（上游已拥有压缩）；fork 独有能力清零至「会话删除」一项。
+  - fork v2.7.0：会话删除重写，目标 DSH 0.1.3-alpha.1（未上 npm）：persistence 改 handle 模型后，按公开 `config.root` 复刻 JSONL 布局递归删目录 + 摘工作区账目；核心抽 `src/delete-session.ts`（DI 纯核）+ 7 单测；客户端 `effects/session-menu.ts`（克隆宿主菜单项 + 按标题反查 sessionId + 自绘确认弹窗）。
+  - 对照本机 rc.2 实装宿主逐项验证：布局复刻逐字节一致 ✅、`persistence.config.root` 存在 ✅、四个服务名均在 ✅、客户端 ctx.sessions/workspaces 形状兼容 ✅、`_sessionRow/_projectRow` 存在 ✅；**但 `list()` rc.2 返回扁平 SessionHeader[]（fork 按 `.header.id` 读 → 必 500）**、`agents.store/detachEntered` rc.2 不存在（live 注销静默 no-op）→ **v2.7.0 只在 0.1.3-alpha.1 上真正可用，在已发布宿主上装得上删不了**。
+  - fork 落后上游：PR #48（composer-keyboard-guard）未同步；两仓 patch 行同 id，不可并存安装。
+  - 网络取证：github.com:443/ghfast 镜像超时不可达，raw/codeload/api.github.com 可达 → codeload tarball 全量落地 `~/tmp/fork-src/fork`（保留待合并用）；取证通道已写进 README 接手协议。
+  - 评估结论已同步 mnemopi 项目库；README 快照与 backlog 会话删除行已更新。
+
 ## 2026-09-05
 
 - **🥈-2 已摘：dsh-file-viewer 全套**（提交 955b69d）：新 `file-viewer-compat.ts`（file-viewer-open-marker task，`[data-conversation-composer-overlay]` 存在即给 frame 打 `data-file-viewer-open`）+ compat.css 106 行（marker 门控的移动布局）+ misc.css 12 行（viewer 输入 16px 防 iOS 聚焦放大）+ sidebar-swipe `takeoverActive()` 并入 file-viewer（左缘横滑让位给 CSV/代码滚动）+ phone-chrome 注册。全部 marker 门控：无 viewer 安装零影响。验证 `.local-tests/file-viewer-probe.mjs` 13/13（注入 viewer 形状：marker 生命周期、8 条 CSS 断言、takeover 抑制边缘滑、移除后手势恢复）。**注意：本机 profile 未装 dsh-file-viewer，注入形状 ≠ 真机**；`dsfv-*` 前缀升级后对账。附带把上一轮并发会话的 layout d.ts 漂移（dual-primary wrap 规则的 build 产物）一并对齐。
